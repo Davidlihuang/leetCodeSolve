@@ -1,100 +1,80 @@
 #include <iostream>
-#include <unordered_map>
+#include <string>
 #include <vector>
-
+#include <stack>
+#include <unordered_map>
 using namespace std;
 
-class Solution {
-public:
-    vector<int> violence(vector<int>& nums, int target);
-    vector<int> twoHash(vector<int>& nums, int target);
-    vector<int> oneHash(vector<int>& nums, int target);
-    vector<int> twoSum(vector<int>& nums, int target) {
-        //return oneHash(nums,target);
-        return twoHash(nums, target);
-        //return violence(nums, target);
-    }
-};
+vector<string> res;
+// 有效括号判定
+bool isValid(string s)
+{
+    unordered_map<char, char> charMap = {
+        {')', '('},
+        {'}', '{'},
+        {']', '['}
+    };
+    stack<char> chStack;
 
-// //两编哈希
-// vector<int> Solution::twoHash(vector<int>& nums, int target) {
-//         unordered_map<int, int> index;
-//         //构建哈希表
-//         for (int i=0; i < nums.size(); i++) {
-//             index.insert(unordered_map<int, int>::value_type(nums[i], i));
-//         }
-//         //查找目标值
-//         for (int i = 0; i < nums.size(); i++) {
-//             if (index.count(target-nums[i]) > 0 && index[target-nums[i]] != i) {
-//                return {i,index[target-nums[i]]};
-//             }
-//         }
-//         return {};
-// }
-
-//一遍哈希
-vector<int> Solution::oneHash(vector<int>& nums, int target) {
-    unordered_map<int, int> indexMap;
-    for(int i=0; i< nums.size(); i++) {
-        if(indexMap.find(target-nums[i]) != indexMap.end()) {
-            return {indexMap.find(target-nums[i])->second, i};
+    if(s.size()%2 == 1) return false;
+    for(auto c: s)
+    {
+        if(charMap.count(c))
+        {
+            if(chStack.empty() || chStack.top() != charMap[c])
+            {
+                return false;
+            }
+            else
+            {
+                chStack.pop();
+            }
         }
-        indexMap.insert(unordered_map<int, int>::value_type(nums[i], i));
+        else
+        {
+            chStack.push(c);
+        }
     }
-    return { };
+
+    return chStack.empty();
 }
 
-//暴力解法
-vector<int> Solution::violence(vector<int>& nums, int target)
+//辅助函数递归生成括号对
+vector<string> _generate(int level, int limit, string s)
 {
-    for(int i=0; i< nums.size()-1; i++)
+    //ternimate 
+    if(level == 2*limit)
     {
-        for(int j = i+1; j< nums.size(); j++)
-        {
-            if(nums[i]+nums[j] == target)
-                return {i,j};
-        }
+        if(isValid(s))
+            res.push_back(s);
+        return res;
     }
+
+    _generate(level+1,limit,s+'(');
+    _generate(level+1, limit, s+')');
+        
+    //process
+
+    //drill down
+
+    //clean
     return {};
 }
 
-//两遍哈希:unorder_map保存的哈希表没有重复的键
-vector<int> Solution::twoHash(vector<int>& nums, int target)
+vector<string> generateParentTHesis(int n)
 {
-    //构建哈希表：在插入键值对时，若表中已经有相同的键，则跳过。
-    unordered_map<int, int> Map;
-    for(int i=0; i< nums.size(); i++)
-    {
-        Map.insert(unordered_map<int, int>::value_type(nums[i],i));
-    } 
-    //插入找目标值
-    // for(int i =0; i< nums.size(); i++)
-    // {
-    //     int temp = target - nums[i];
-    //     if(Map.count(temp) > 0 && Map[temp] != i)
-    //     {
-    //         return {Map[temp],i};
-    //     }
-    // }
-    for(int i=0;  i< nums.size(); i++)
-    {
-        int temp = target - nums[i];
-        auto it = Map.find(temp);
-        if(it != Map.end() && it->second !=  i)
-        {
-            return {i, it->second};
-        }
-    }
-    return {};
+    return _generate(0,n,"");
 }
-
 
 int main()
 {
-    vector<int> data{3,4,3,3};
-    int target = 6;
-    Solution slove;
-    vector<int> sum = slove.twoHash(data, target);
 
-    cout << " " << endl;
+    generateParentTHesis(3);
+    for(auto c:res)
+        cout << c << endl;
+
+
+    return 0;
 }
+
+
