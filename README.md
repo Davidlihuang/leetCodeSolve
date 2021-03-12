@@ -104,8 +104,62 @@ bool Solution::isValid(const string& s)
 注意：给定 n 是一个正整数。
 ```
 - 审题
+```txt
+- 爬n阶楼梯
+- 每次只能爬 1阶 或者 2阶
+- 不能倒退
+```
 - 解题思路
+```txt
+到达目标台阶有两种走法
+1. 从倒数第一个台阶，迈一步到达
+2. 从倒数第二个台阶，迈两步到达
+```
 - 关键代码片段
+
+**①、暴力递归**
+```cpp
+//暴力递归，
+int Solution::ruleRecur(int n)
+{
+    if(n < 3) return n;
+    return ruleRecur(n-1) + ruleRecur(n-2);
+}
+```
+**③、备忘录保存重叠解**
+```cpp
+//存在「重叠子问题」，如果暴力穷举的话效率会极其低下，所以需要「备忘录」或者「DP table」来优化穷举过程，避免不必要的计算
+int Solution::memerialHelper(unordered_map<int,int>& memerial, int n)
+{
+    if(n<3) return n;
+    if(memerial.count(n)) 
+    {
+        return memerial[n];
+    }    
+    else
+    {
+        memerial[n] = memerialHelper(memerial,n-1) + memerialHelper(memerial,n-2); 
+        return memerial[n];
+    }
+}
+```
+**③、动态规划**
+```cpp
+//动态规划
+int Solution::Dphelper(int n)
+{
+    int dp1=1, dp2=2;
+    int res = 0;
+    if(n < 3) return n;
+    for(int i = 3; i< n+1;i++)
+    {
+        res =dp1 + dp2;
+        dp1 = dp2;
+        dp2 = res;
+    }
+    return res;
+}
+```
 ## 141. 环形链表
 - 题目描述
 - 审题
